@@ -1,0 +1,43 @@
+name: wordpress_app
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0-210.2.beta <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  dio: ^5.3.3
+  provider: ^6.0.5
+  animated_bottom_navigation_bar: ^1.3.0
+  page_transition: ^2.1.0
+  collection: ^1.18.0
+  intl: ^0.18.1
+  shared_preferences: ^2.2.2
+  flutter_inappwebview: ^5.8.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+
+flutter:
+
+  uses-material-design: true
+
+  # assets:
+  #   - assets/images/
+
+  fonts:
+    - family: font1
+      fonts:
+        - asset: assets/fonts/font1.ttf
+    - family: font2
+      fonts:
+        - asset: assets/fonts/font2.ttf
