@@ -45,10 +45,16 @@ class _CatalogPageState extends State<CatalogPage> {
     });
   }
 
-  final sortByOption = [
+  @override
+  void dispose() {
+    _debouns?.cancel();
+    super.dispose();
+  }
+
+  final _sortByOption = [
     SortBy('popularity', 'محبوبت', 'asc'),
     SortBy('date', 'قدیمی ترین', 'asc'),
-    SortBy('price', 'قیمت زیاد به کم', 'decs'),
+    SortBy('price', 'قیمت زیاد به کم', 'desc'),
     SortBy('price', 'قیمت کم به زیاد', 'asc'),
   ];
 
@@ -70,6 +76,7 @@ class _CatalogPageState extends State<CatalogPage> {
                     child: Directionality(
                       textDirection: TextDirection.rtl,
                       child: TextField(
+                        style: const TextStyle(fontFamily: 'font1'),
                         controller: searchQury,
                         textAlign: TextAlign.justify,
                         textDirection: TextDirection.rtl,
@@ -96,16 +103,16 @@ class _CatalogPageState extends State<CatalogPage> {
                         color: const Color(0xffe6e6ec),
                         borderRadius: BorderRadius.circular(10)),
                     child: PopupMenuButton(
-                      onSelected: (sortBy) {
+                      onSelected: (sortByItem) {
                         CatalogProvider productList =
                             Provider.of<CatalogProvider>(context,
                                 listen: false);
                         productList.initializeData();
-                        productList.setSortOlder(sortBy);
+                        productList.setSortOlder(sortByItem);
                         productList.fatchProducts(page);
                       },
                       itemBuilder: (context) {
-                        return sortByOption.map(
+                        return _sortByOption.map(
                           (item) {
                             return PopupMenuItem(
                               value: item,
@@ -131,7 +138,7 @@ class _CatalogPageState extends State<CatalogPage> {
           Consumer<CatalogProvider>(
             builder: (context, productModel, child) {
               if (productModel.allProduct.isNotEmpty &&
-                  productModel.getStatus() != DataStatus.initial) {
+                  productModel.getDataStatus() != DataStatus.initial) {
                 return Directionality(
                   textDirection: TextDirection.rtl,
                   child: Flexible(
@@ -149,64 +156,75 @@ class _CatalogPageState extends State<CatalogPage> {
                               ),
                               boxShadow: <BoxShadow>[
                                 BoxShadow(
-                                    color: Constants.white,
-                                    blurRadius: 15,
-                                    spreadRadius: 10),
+                                  color: Constants.white,
+                                  blurRadius: 15,
+                                  spreadRadius: 10,
+                                ),
                               ],
                             ),
                             margin: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 10),
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 30,
-                                          backgroundColor: Constants.blue,
-                                        ),
-                                        Image.network(
-                                          e.images![0].src.toString(),
-                                          height: 80,
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-                                    Text(
-                                      e.name.toString(),
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontFamily: 'font2',
-                                          fontSize: 14,
-                                          color: Constants.black,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          '${numberFormat.format(int.parse(e.price ?? '000'))}تومان'
-                                              .farsiNumber,
-                                          textDirection: TextDirection.rtl,
-                                          style: const TextStyle(
+                              vertical: 10,
+                              horizontal: 10,
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
+                              ),
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 30,
+                                            backgroundColor: Constants.blue,
+                                          ),
+                                          Image.network(
+                                            e.images![0].src.toString(),
+                                            height: 80,
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                      Text(
+                                        e.name.toString(),
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontFamily: 'font2',
+                                            fontSize: 14,
+                                            color: Constants.black,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            '${numberFormat.format(int.parse(e.price ?? '000'))}تومان'
+                                                .farsiNumber,
+                                            textDirection: TextDirection.rtl,
+                                            style: const TextStyle(
                                               fontFamily: 'font1',
                                               fontSize: 13,
-                                              color: Colors.black),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                )
-                              ],
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },

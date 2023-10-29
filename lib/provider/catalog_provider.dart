@@ -14,7 +14,7 @@ class CatalogProvider with ChangeNotifier {
   late List<ProductModel> _productlist;
   late SortBy _sortBy;
   DataStatus _dataStatus = DataStatus.stable;
-  int pageSize = 5;
+  int pageSize = 6;
 
   List<ProductModel> get allProduct => _productlist;
   double get totalProduct => _productlist.length.toDouble();
@@ -26,10 +26,10 @@ class CatalogProvider with ChangeNotifier {
 
   CatalogProvider() {
     initializeData();
-    _sortBy = SortBy('popularity', 'latest', 'asc');
+    _sortBy = SortBy('popularity', 'Latest', 'desc');
   }
 
-  getStatus() => _dataStatus;
+  getDataStatus() => _dataStatus;
 
   setLoadingStatus(DataStatus dataStatus) {
     _dataStatus = dataStatus;
@@ -49,15 +49,16 @@ class CatalogProvider with ChangeNotifier {
   }) async {
     List<ProductModel> itemModel = await _apiService.getcatalog(
       searchKeyword: searchKeyword,
+      tagName: tagName,
       pageNumber: pageNumber,
       sortBy: _sortBy.value,
       sortOrder: _sortBy.sortOrder.toString(),
-      tagName: tagName,
       pageSize: pageSize,
     );
     if (itemModel.isNotEmpty) {
       _productlist.addAll(itemModel);
     }
     setLoadingStatus(DataStatus.stable);
+    notifyListeners();
   }
 }

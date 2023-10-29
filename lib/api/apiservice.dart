@@ -45,7 +45,7 @@ class ApiService {
 
   Future<LoginModel> customerLogin(String username, String password) async {
     late LoginModel loginmodel;
-    String tokenURL = "https://stokecom.ir/wp-json/wc/v3/jwt-auth/v1/token";
+    String tokenURL = "https://stokecom.ir/wp-json/jwt-auth/v1/token";
     try {
       Response response = await Dio().post(
         tokenURL,
@@ -62,10 +62,17 @@ class ApiService {
       if (response.statusCode == 200) {
         loginmodel = LoginModel.fromJson(response.data);
       } else {
-        throw Exception("اشتباه");
+        return LoginModel(message: response.toString());
       }
-    } on DioException catch (e) {
-      throw "Error: $e";
+    } catch (e) {
+      if (e is DioException) {
+        if (e.response!.statusCode == 403) {
+          return LoginModel(message: 'هیچ داده ایی دریافت نشد');
+        }
+        return LoginModel.fromJson(e.response?.data);
+      } else {
+        return LoginModel(message: e.toString());
+      }
     }
     return loginmodel;
   }
@@ -221,12 +228,9 @@ class ApiService {
   }) async {
     List<ProductModel> productCatalogList = <ProductModel>[];
 
-    String pathCatalog = "https://stokecom.ir/wp-json/wc/v3/products";
-    String authToken = base64.encode(utf8.encode(
-        "${WoocommerceInfo.consumerKey}:${WoocommerceInfo.consumerSecret}"));
     try {
-      // ignore: unused_local_variable
       String parameter = '';
+
       if (searchKeyword != null) {
         parameter += '&search=$searchKeyword';
       }
@@ -247,11 +251,13 @@ class ApiService {
       } else {
         parameter += '&order=desc';
       }
+      final String productURL =
+          "${WoocommerceInfo.baseURL}${WoocommerceInfo.productURL}?consumer_key=${WoocommerceInfo.consumerKey}&consumer_secret=${WoocommerceInfo.consumerSecret}${parameter.toString()}";
+
       Response response = await Dio().get(
-        pathCatalog,
+        productURL,
         options: Options(
           headers: <String, dynamic>{
-            HttpHeaders.authorizationHeader: "Basic $authToken",
             HttpHeaders.contentTypeHeader: "application/json",
           },
         ),
@@ -261,6 +267,8 @@ class ApiService {
         productCatalogList = (response.data as List)
             .map((v) => ProductModel.fromJson(v))
             .toList();
+      } else if (response.data == null) {
+        throw "اطلاعاتی وجود ندارد";
       }
     } on DioException catch (e) {
       throw "Error : $e";

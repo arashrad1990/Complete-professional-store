@@ -71,12 +71,12 @@ class _SinginState extends State<Singin> {
                           validator: (value) {
                             if (value!.isEmpty) {
                               return " امیل شما خالی است";
-                            } else if (value.length < 5) {
-                              return "ایمیل شما کمتر از 5 حروف است";
-                            } else if (RegExp(
-                                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                .hasMatch(value)) {
-                              return "ایمیل شما نا معتبر است";
+                            } else if (value.length < 3) {
+                              return "ایمیل شما کمتر از 3 حروف است";
+                            // } else if (RegExp(
+                            //         r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                            //     .hasMatch(value)) {
+                            //   return "ایمیل شما نا معتبر است";
                             } else {
                               return null;
                             }
@@ -107,10 +107,10 @@ class _SinginState extends State<Singin> {
                               return "پسورد شما خالی است";
                             } else if (value.length < 6) {
                               return "پسورد شما کمتر از 6 حروف است";
-                            } else if (RegExp(
-                                    r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$')
-                                .hasMatch(value)) {
-                              return "پسورد شما نا معتبر است";
+                            // } else if (RegExp(
+                            //         r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$')
+                            //     .hasMatch(value)) {
+                            //   return "پسورد شما نا معتبر است";
                             } else {
                               return null;
                             }
