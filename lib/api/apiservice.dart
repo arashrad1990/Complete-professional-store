@@ -252,7 +252,7 @@ class ApiService {
         parameter += '&order=desc';
       }
       final String productURL =
-          "${WoocommerceInfo.baseURL}${WoocommerceInfo.productURL}?consumer_key=${WoocommerceInfo.consumerKey}&consumer_secret=${WoocommerceInfo.consumerSecret}${parameter.toString()}";
+          "${WoocommerceInfo.baseURL}${WoocommerceInfo.productURL}?consumer_key=${WoocommerceInfo.consumerKey}&consumer_secret=${WoocommerceInfo.consumerSecret}&${parameter.toString()}";
 
       Response response = await Dio().get(
         productURL,

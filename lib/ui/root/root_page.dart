@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
-import 'package:wordpress_app/catalog/catalog.dart';
 import 'package:wordpress_app/constant/constant.dart';
 import 'package:wordpress_app/ui/cart/cartpage.dart';
+import 'package:wordpress_app/ui/catalog/catalog.dart';
 import 'package:wordpress_app/ui/home/homepage.dart';
 import 'package:wordpress_app/ui/profile/profilepage.dart';
 import 'package:wordpress_app/ui/singup/singup.dart';

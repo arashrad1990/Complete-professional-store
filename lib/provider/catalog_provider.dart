@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' show ChangeNotifier;
 import 'package:wordpress_app/api/apiservice.dart';
-import 'package:wordpress_app/catalog/catalog_class.dart';
 import 'package:wordpress_app/models/woocamers/product_model.dart';
+import 'package:wordpress_app/ui/catalog/catalog_class.dart';
 
 enum DataStatus {
   initial,
@@ -33,6 +33,7 @@ class CatalogProvider with ChangeNotifier {
 
   setLoadingStatus(DataStatus dataStatus) {
     _dataStatus = dataStatus;
+    notifyListeners();
   }
 
   setSortOlder(SortBy sortBy) {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wordpress_app/catalog/catalog.dart';
 import 'package:wordpress_app/provider/catalog_provider.dart';
 import 'package:wordpress_app/provider/loding_provider.dart';
 import 'package:wordpress_app/provider/shop_provider.dart';
+import 'package:wordpress_app/ui/catalog/catalog.dart';
 import 'package:wordpress_app/ui/detailpageshop/detailshop.dart';
 import 'package:wordpress_app/ui/home/homepage.dart';
 import 'package:wordpress_app/ui/root/root_page.dart';

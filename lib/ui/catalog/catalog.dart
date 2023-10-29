@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 import 'package:provider/provider.dart';
-import 'package:wordpress_app/catalog/catalog_class.dart';
 import 'package:wordpress_app/constant/constant.dart';
 import 'package:wordpress_app/provider/catalog_provider.dart';
+import 'package:wordpress_app/ui/catalog/catalog_class.dart';
 
 class CatalogPage extends StatefulWidget {
   const CatalogPage({super.key});
@@ -18,6 +18,7 @@ class _CatalogPageState extends State<CatalogPage> {
   NumberFormat numberFormat = NumberFormat.decimalPattern('fa');
   int page = 1;
   final TextEditingController searchQury = TextEditingController();
+  ScrollController scrollController = ScrollController();
   Timer? _debouns;
 
   @override
@@ -28,6 +29,14 @@ class _CatalogPageState extends State<CatalogPage> {
       productList.initializeData();
       productList.setLoadingStatus(DataStatus.initial);
       productList.fatchProducts(page);
+
+      scrollController.addListener(() {
+        if (scrollController.position.pixels ==
+            scrollController.position.maxScrollExtent) {
+          productList.setLoadingStatus(DataStatus.loading);
+          productList.fatchProducts(++page);
+        }
+      });
     });
     searchQury.addListener(_onSearchChange);
     super.initState();
@@ -60,6 +69,9 @@ class _CatalogPageState extends State<CatalogPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isLoadMore =
+        context.watch<CatalogProvider>().getDataStatus() == DataStatus.initial;
+
     return Scaffold(
       body: Column(
         children: [
@@ -143,6 +155,7 @@ class _CatalogPageState extends State<CatalogPage> {
                   textDirection: TextDirection.rtl,
                   child: Flexible(
                     child: GridView.count(
+                      controller: scrollController,
                       crossAxisCount: 2,
                       shrinkWrap: true,
                       physics: const ClampingScrollPhysics(),
@@ -237,6 +250,15 @@ class _CatalogPageState extends State<CatalogPage> {
                 child: CircularProgressIndicator(),
               );
             },
+          ),
+          Visibility(
+            visible: isLoadMore,
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              height: 35,
+              width: 35,
+              child: const CircularProgressIndicator(),
+            ),
           ),
         ],
       ),
