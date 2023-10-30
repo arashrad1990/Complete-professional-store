@@ -32,7 +32,7 @@ class _MtState extends State<MyApp> {
           create: (context) => LodingProvider(),
           child: const DetailShop(),
         ),
-          ChangeNotifierProvider(
+        ChangeNotifierProvider(
           create: (context) => CatalogProvider(),
           child: const CatalogPage(),
         ),

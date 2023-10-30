@@ -1,74 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:wordpress_app/user_pass/password.dart';
 
-// ignore: must_be_immutable
-class CustomMinMaxPrice extends StatefulWidget {
-  final int numberMin;
-  final int numberMax;
-  final double iconSize;
-  int value;
-  final ValueChanged onChanged;
-
-  CustomMinMaxPrice({
-    super.key,
-    required this.numberMin,
-    required this.numberMax,
-    required this.iconSize,
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  State<CustomMinMaxPrice> createState() => _CustomMinMaxPriceState();
-}
-
-class _CustomMinMaxPriceState extends State<CustomMinMaxPrice> {
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        IconButton(
-          onPressed: () {
-            setState(() {
-              widget.value = widget.value == widget.numberMin
-                  ? widget.numberMin
-                  : widget.value -= 1;
-              widget.onChanged(widget.value);
-            });
-          },
-          icon: const Icon(Icons.remove),
-        ),
-        SizedBox(
-          width: widget.iconSize,
-          child: Text(
-            widget.value.toString(),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        IconButton(
-          onPressed: () {
-            setState(() {
-              widget.value = widget.value == widget.numberMax
-                  ? widget.numberMax
-                  : widget.value += 1;
-              widget.onChanged(widget.value);
-            });
-          },
-          icon: const Icon(Icons.add),
-        ),
-      ],
-    );
-  }
-}
 
 class WoocommerceInfo {
   // BASE URL
   static const String _baseURL = 'https://stokecom.ir/wp-json';
 
   // CONSUMERKEY & CONSUMERSECRET
-  static  String consumerKey = PassProgram().consumerKey.toString();
-  static  String consumerSecret = PassProgram().consumerSecret.toString();
+  static String consumerKey = PassProgram().consumerKey.toString();
+  static String consumerSecret = PassProgram().consumerSecret.toString();
 
   // BASE URL WOOCOMMERCE
   static const String baseURL = '$_baseURL/wc/v3/';
@@ -193,4 +133,71 @@ String removeAllHtmlTags(String htmlText) {
   RegExp exp = RegExp(r"<[^>]*>", multiLine: true, caseSensitive: true);
 
   return htmlText.replaceAll(exp, '');
+}
+
+// ignore: must_be_immutable
+class CustomMinMaxPrice extends StatefulWidget {
+  final int numberMin;
+  final int numberMax;
+  final double iconSize;
+  int value;
+  final ValueChanged onChanged;
+
+  CustomMinMaxPrice({
+    super.key,
+    required this.numberMin,
+    required this.numberMax,
+    required this.iconSize,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  State<CustomMinMaxPrice> createState() => _CustomMinMaxPriceState();
+}
+
+class _CustomMinMaxPriceState extends State<CustomMinMaxPrice> {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        IconButton(
+          iconSize: widget.iconSize,
+          onPressed: () {
+            setState(() {
+              widget.value = widget.value == widget.numberMin
+                  ? widget.numberMin
+                  : widget.value -= 1;
+              widget.onChanged(widget.value);
+            });
+          },
+          icon: const Icon(Icons.remove),
+        ),
+        SizedBox(
+          width: 10,
+          child: Text(
+            widget.value.toString().farsiNumber,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontFamily: 'font1',
+              fontSize: 15,
+            ),
+          ),
+        ),
+        IconButton(
+          iconSize: widget.iconSize,
+          onPressed: () {
+            setState(() {
+              widget.value = widget.value == widget.numberMax
+                  ? widget.numberMax
+                  : widget.value += 1;
+              widget.onChanged(widget.value);
+            });
+          },
+          icon: const Icon(Icons.add),
+        ),
+      ],
+    );
+  }
 }

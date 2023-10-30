@@ -14,7 +14,7 @@ class CatalogProvider with ChangeNotifier {
   late List<ProductModel> _productlist;
   late SortBy _sortBy;
   DataStatus _dataStatus = DataStatus.stable;
-  int pageSize = 6;
+  int pageSize = 5;
 
   List<ProductModel> get allProduct => _productlist;
   double get totalProduct => _productlist.length.toDouble();

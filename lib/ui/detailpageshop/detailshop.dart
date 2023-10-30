@@ -23,7 +23,7 @@ class _DetailShopState extends State<DetailShop> {
   late String firstHalf;
   late String secondHalf;
   bool flag = true;
-  int quantity = 0;
+  int quantity = 1;
   CartProduct cartProduct = CartProduct();
   @override
   void initState() {
@@ -335,6 +335,7 @@ class _DetailShopState extends State<DetailShop> {
             ],
           ),
           floatingActionButton: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             // icon by cart
             children: [
               Padding(
@@ -389,53 +390,43 @@ class _DetailShopState extends State<DetailShop> {
                   ),
                 ),
               ),
-              CustomMinMaxPrice(
-                numberMin: 0,
-                numberMax: 20,
-                iconSize: 22,
-                value: quantity,
-                onChanged: (value) {
-                  cartProduct.quantity = value;
-                },
-              ),
               // botton by cart
-              Padding(
-                padding: const EdgeInsets.only(left: 15),
-                child: Container(
-                  height: 40,
-                  width: 180,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Constants.green,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: InkResponse(
-                      onTap: () {
+
+              Container(
+                height: 40,
+                width: 180,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Constants.green,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: InkResponse(
+                    onTap: () {
+                      cartProduct.quantity = quantity;
+                      Provider.of<LodingProvider>(context, listen: false)
+                          .setloadingStatus(true);
+                      ShopProvider cartProvider =
+                          Provider.of<ShopProvider>(context, listen: false);
+                      cartProduct.productId = widget.data!.id;
+                      cartProvider.addtoCart(cartProduct, (val) {
                         Provider.of<LodingProvider>(context, listen: false)
-                            .setloadingStatus(true);
-                        ShopProvider cartProvider =
-                            Provider.of<ShopProvider>(context, listen: false);
-                        cartProduct.productId = widget.data!.id;
-                        cartProvider.addtoCart(cartProduct, (val) {
-                          Provider.of<LodingProvider>(context, listen: false)
-                              .setloadingStatus(false);
-                        });
-                      },
-                      child: loader.isApiCalled
-                          ? const Center(
-                              child: CircularProgressIndicator(),
-                            )
-                          : const Text(
-                              'افزودن به سبد خرید',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'font2',
-                                fontSize: 20,
-                                color: Colors.white,
-                              ),
+                            .setloadingStatus(false);
+                      });
+                    },
+                    child: loader.isApiCalled
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : const Text(
+                            'افزودن به سبد خرید',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'font2',
+                              fontSize: 20,
+                              color: Colors.white,
                             ),
-                    ),
+                          ),
                   ),
                 ),
               ),
