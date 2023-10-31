@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:wordpress_app/constant/constant.dart';
 import 'package:wordpress_app/models/woocamers/addtocart_requests_model.dart';
-import 'package:wordpress_app/models/woocamers/addtocart_response_model.dart';
+import 'package:wordpress_app/models/woocamers/cart_response_model.dart';
 import 'package:wordpress_app/models/woocamers/login_model.dart';
 import 'package:wordpress_app/models/woocamers/product_gategori.dart';
 import 'package:wordpress_app/models/woocamers/product_model.dart';
@@ -274,5 +274,26 @@ class ApiService {
       throw "Error : $e";
     }
     return productCatalogList;
+  }
+
+  Future<AddToCartResModel> getCartItem() async {
+    late AddToCartResModel responseModle;
+    int userId = 1;
+    final String cartUrl =
+        "${WoocommerceInfo.baseURL}${WoocommerceInfo.cartURL}?user_id=$userId&${WoocommerceInfo.consumerKey}&consumer_secret=${WoocommerceInfo.consumerSecret}";
+    try {
+      Response response = await Dio().get(
+        cartUrl,
+        options: Options(headers: <String, dynamic>{
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+      );
+      if (response.statusCode == 200) {
+        responseModle = AddToCartResModel.fromJson(response.data);
+      }
+    } on DioException catch (e) {
+      throw "error : $e";
+    }
+    return responseModle;
   }
 }

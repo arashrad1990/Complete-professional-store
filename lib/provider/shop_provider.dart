@@ -1,7 +1,8 @@
+
 import 'package:flutter/material.dart' show ChangeNotifier;
 import 'package:wordpress_app/api/apiservice.dart';
 import 'package:wordpress_app/models/woocamers/addtocart_requests_model.dart';
-import 'package:wordpress_app/models/woocamers/addtocart_response_model.dart';
+import 'package:wordpress_app/models/woocamers/cart_response_model.dart';
 import 'package:wordpress_app/models/woocamers/product_gategori.dart';
 import 'package:wordpress_app/models/woocamers/product_model.dart';
 import 'package:wordpress_app/models/wordpress/wordpreesmodel.dart';
@@ -10,10 +11,10 @@ import 'package:collection/collection.dart';
 class ShopProvider with ChangeNotifier {
   ApiService? _apiService;
 
-ShopProvider(){
-_apiService = ApiService();
-  _iteminCart =[];
-}
+  ShopProvider() {
+    _apiService = ApiService();
+    _iteminCart = <CartItem>[];
+  }
   bool isLoding = false;
   bool islodingWeblog = false;
 //list product all
@@ -81,13 +82,13 @@ _apiService = ApiService();
     if (_iteminCart == null) initdata();
 
     for (var element in _iteminCart!) {
-        regModel.products!.add(
-          CartProduct(
-            productId: element.productId,
-            quantity: element.quantity,
-          ),
-        );
-      }
+      regModel.products!.add(
+        CartProduct(
+          productId: element.productId,
+          quantity: element.quantity,
+        ),
+      );
+    }
 
     CartProduct? doblicatedProductId = regModel.products!.firstWhereOrNull(
       (prod) => prod.productId == product.productId,
@@ -109,6 +110,63 @@ _apiService = ApiService();
         notifyListeners();
       },
     );
+  }
+
+  //cart buy
+  Future<void> fatchCartItems() async {
+    isLoding = true;
+    notifyListeners();
+    if (_iteminCart == null) initdata();
+    await _apiService!.getCartItem().then((cartResItems) {
+      if (cartResItems.data!.isNotEmpty) {
+        _iteminCart!.clear();
+        List<CartItem>? newCartResModle = cartResItems.data;
+        _iteminCart!.addAll(newCartResModle!);
+      }
+    });
+
+    isLoding = false;
+    notifyListeners();
+  }
+
+  void updateQty(int productID, int newQty) {
+    CartItem? isProductExits =
+        _iteminCart!.firstWhereOrNull((prd) => prd.productId == productID);
+    if (isProductExits != null) {
+      isProductExits.quantity = newQty;
+    }
+    notifyListeners();
+  }
+
+  void removeItem(int productID) {
+    CartItem? isProductExits =
+        _iteminCart!.firstWhereOrNull((prd) => prd.productId == productID);
+    if (isProductExits != null) {
+      _iteminCart!.remove(isProductExits);
+    }
+    notifyListeners();
+  }
+
+  Future<void> updateCart(Function onCallBack) async {
+    AddToCartRegModel cartRegModel = AddToCartRegModel();
+    cartRegModel.products = <CartProduct>[];
+
+    for (var element in _iteminCart!) {
+      cartRegModel.products!.add(CartProduct(
+        productId: element.productId,
+        quantity: element.quantity,
+      ));
+    }
+
+    await _apiService!.addtocart(cartRegModel).then((cartResModel) {
+      if (cartResModel.data != null) {
+        List<CartItem>? newCartResModle = cartResModel.data;
+        _iteminCart = [];
+        _iteminCart!.addAll(newCartResModle!);
+      }
+      onCallBack(cartResModel);
+      notifyListeners();
+    });
   }
 
   void initdata() {
