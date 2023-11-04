@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:wordpress_app/constant/constant.dart';
 import 'package:wordpress_app/provider/catalog_provider.dart';
 import 'package:wordpress_app/ui/catalog/catalog_class.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class CatalogPage extends StatefulWidget {
   const CatalogPage({super.key});
@@ -250,8 +251,11 @@ class _CatalogPageState extends State<CatalogPage> {
                   ),
                 );
               }
-              return const Center(
-                child: CircularProgressIndicator(),
+              return Center(
+                child: LoadingAnimationWidget.staggeredDotsWave(
+                  color: Colors.white,
+                  size: 200,
+                ),
               );
             },
           ),
@@ -261,7 +265,10 @@ class _CatalogPageState extends State<CatalogPage> {
               padding: const EdgeInsets.all(5),
               height: 20,
               width: 20,
-              child: const CircularProgressIndicator(),
+              child: LoadingAnimationWidget.staggeredDotsWave(
+                color: Colors.white,
+                size: 200,
+              ),
             ),
           ),
         ],

@@ -2,15 +2,18 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:wordpress_app/constant/constant.dart';
 import 'package:wordpress_app/models/woocamers/addtocart_requests_model.dart';
 import 'package:wordpress_app/models/woocamers/cart_response_model.dart';
 import 'package:wordpress_app/models/woocamers/login_model.dart';
+import 'package:wordpress_app/models/woocamers/order_model.dart';
 import 'package:wordpress_app/models/woocamers/product_gategori.dart';
 import 'package:wordpress_app/models/woocamers/product_model.dart';
 import 'package:wordpress_app/models/woocamers/registermodel.dart';
+import 'package:wordpress_app/models/woocamers/verify_model.dart';
 import 'package:wordpress_app/models/wordpress/wordpreesmodel.dart';
+import 'package:wordpress_app/models/zarinpall_verfy.dart';
+import 'package:wordpress_app/models/zarinpallmodel.dart';
 
 class ApiService {
   Future<bool> creactEmail(CustomerModel model) async {
@@ -189,10 +192,8 @@ class ApiService {
 
 //add to cart
   Future<AddToCartResModel> addtocart(AddToCartRegModel model) async {
-    String authToken = base64.encode(utf8.encode(
-        "${WoocommerceInfo.consumerKey}:${WoocommerceInfo.consumerSecret}"));
     model.userId = 1;
-    String url = "https://stokecom.ir/wp-json/wc/v3/addtocart";
+    String url = 'https://stokecom.ir/wp-json/wc/v3/addtocart';
     late AddToCartResModel responseModel;
 
     try {
@@ -201,12 +202,10 @@ class ApiService {
         data: model.toJson(),
         options: Options(
           headers: <String, dynamic>{
-            HttpHeaders.authorizationHeader: "Basic $authToken",
             HttpHeaders.contentTypeHeader: "application/json",
           },
         ),
       );
-      debugPrint(response.statusCode.toString());
       if (response.statusCode == 200) {
         responseModel = AddToCartResModel.fromJson(response.data);
       }
@@ -251,9 +250,9 @@ class ApiService {
       } else {
         parameter += '&order=desc';
       }
-      final String productURL =
-          "${WoocommerceInfo.baseURL}${WoocommerceInfo.productURL}?consumer_key=${WoocommerceInfo.consumerKey}&consumer_secret=${WoocommerceInfo.consumerSecret}&${parameter.toString()}";
 
+      final String productURL =
+          "${WoocommerceInfo.baseURL}${WoocommerceInfo.productURL}?consumer_key=${WoocommerceInfo.consumerKey}&consumer_secret=${WoocommerceInfo.consumerSecret}${parameter.toString()}";
       Response response = await Dio().get(
         productURL,
         options: Options(
@@ -280,7 +279,7 @@ class ApiService {
     late AddToCartResModel responseModle;
     int userId = 1;
     final String cartUrl =
-        "${WoocommerceInfo.baseURL}${WoocommerceInfo.cartURL}?user_id=$userId&${WoocommerceInfo.consumerKey}&consumer_secret=${WoocommerceInfo.consumerSecret}";
+        "https://stokecom.ir/wp-json/wc/v3/cart?consumer_key=ck_33e49c4390f6527ee45eb6531000099f028d4962&consumer_secret=cs_ca8a297a94eb76616368e7acdf0f194b0e31ff24&user_id=$userId";
     try {
       Response response = await Dio().get(
         cartUrl,
@@ -295,5 +294,155 @@ class ApiService {
       throw "error : $e";
     }
     return responseModle;
+  }
+
+  Future<CustomerDetailsModel> getCustomeDetile() async {
+    late CustomerDetailsModel responseModle;
+
+    try {
+      int userID = 1;
+      final String url =
+          "${WoocommerceInfo.baseURL}${WoocommerceInfo.customerURL}/$userID?consumer_key=${WoocommerceInfo.consumerKey}&consumer_secret=${WoocommerceInfo.consumerSecret}";
+      Response response = await Dio().get(
+        url,
+        options: Options(headers: <String, dynamic>{
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+      );
+      if (response.statusCode == 200) {
+        responseModle = CustomerDetailsModel.fromJson(response.data);
+      }
+    } on DioException catch (e) {
+      throw "error : $e";
+    }
+    return responseModle;
+  }
+
+  Future<CustomerDetailsModel> updateCustomerModel(
+      CustomerDetailsModel model) async {
+    CustomerDetailsModel? responseModel;
+
+    try {
+      int userID = 1;
+      String url =
+          "${WoocommerceInfo.baseURL}${WoocommerceInfo.customerURL}/$userID?consumer_key=${WoocommerceInfo.consumerKey}&consumer_secret=${WoocommerceInfo.consumerSecret}";
+      Response response = await Dio().post(
+        url,
+        data: model.toJson(),
+        options: Options(headers: <String, dynamic>{
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+      );
+      if (response.statusCode == 200) {
+        responseModel = CustomerDetailsModel.fromJson(response.data);
+      }
+    } on DioException catch (e) {
+      throw "error : $e";
+    }
+    return responseModel!;
+  }
+
+  Future<ZarinpallModel?> getAuthority(String amount) async {
+    ZarinpallModel? zarinpallModel;
+
+    try {
+      String url = "https://api.zarinpal.com/pg/v4/payment/request.json";
+      Map<String, dynamic> parameter = {
+        "description": "خرید از سایت استوک",
+        "callback_url": ZarinPall().callbackurl,
+        "merchant_id": ZarinPall().merchantid,
+        'amount': amount,
+      };
+      Response response = await Dio().post(
+        url,
+        queryParameters: parameter,
+        options: Options(headers: <String, dynamic>{
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+      );
+      if (response.statusCode == 200) {
+        zarinpallModel = ZarinpallModel.fromJson(response.data);
+      }
+    } on DioException catch (e) {
+      throw "error : $e";
+    }
+    return zarinpallModel;
+  }
+
+  Future<ZarinpalVerify?> verfyPeyment(int? amount, String authori) async {
+    ZarinpalVerify? zarinPallverify;
+    String? amountTorial = '${amount}0';
+    try {
+      String url = ZarinPall().zarinPallverify;
+      Map<String, dynamic> parameter = {
+        "merchant_id": ZarinPall().merchantid,
+        'amount': amountTorial,
+        'authority': authori,
+      };
+      Response response = await Dio().post(
+        url,
+        queryParameters: parameter,
+        options: Options(headers: <String, dynamic>{
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+      );
+      if (response.statusCode == 200) {
+        zarinPallverify = ZarinpalVerify.fromJson(response.data);
+      }
+    } on DioException catch (e) {
+      throw "error : $e";
+    }
+    return zarinPallverify;
+  }
+
+  Future<bool> createOrder(OrderModel model) async {
+    model.customerId = 1;
+
+    bool isOrderCreated = false;
+    String authToken = base64.encode(utf8.encode(
+        "${WoocommerceInfo.consumerKey}:${WoocommerceInfo.consumerSecret}"));
+    try {
+      Response response =
+          await Dio().post(WoocommerceInfo.baseURL + WoocommerceInfo.orderURL,
+              data: model.toJson(),
+              options: Options(headers: {
+                HttpHeaders.contentTypeHeader: 'application/json',
+                HttpHeaders.authorizationHeader: 'Basic $authToken',
+              }));
+
+      if (response.statusCode == 200) {
+        isOrderCreated = true;
+      }
+    } on DioException catch (e) {
+      throw 'Error $e';
+    }
+    return isOrderCreated;
+  }
+
+  Future<List<OrderModel>> getAllOrders() async {
+    List<OrderModel> allOrders = <OrderModel>[];
+
+    try {
+      int? userID = 1;
+      final String url =
+          "${WoocommerceInfo.baseURL}${WoocommerceInfo.orderURL}?consumer_key=${WoocommerceInfo.consumerKey}&consumer_secret=${WoocommerceInfo.consumerSecret}&customer=$userID";
+      Response response = await Dio().get(
+        url,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        allOrders = (response.data as List)
+            .map(
+              (i) => OrderModel.fromJson(i),
+            )
+            .toList();
+      }
+    } on DioException catch (e) {
+      throw 'Error $e';
+    }
+    return allOrders;
   }
 }

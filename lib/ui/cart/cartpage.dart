@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 import 'package:provider/provider.dart';
 import 'package:wordpress_app/constant/constant.dart';
+import 'package:wordpress_app/provider/loding_provider.dart';
 import 'package:wordpress_app/provider/shop_provider.dart';
+import 'package:wordpress_app/ui/verify_addres/verifyaddres.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -13,12 +15,13 @@ class CartPage extends StatefulWidget {
 
 class _CartPageState extends State<CartPage> {
   @override
+  // init provider
   void initState() {
     Future.delayed(Duration.zero).then((value) {
       ShopProvider cartItemList =
           Provider.of<ShopProvider>(context, listen: false);
       cartItemList.initdata();
-      cartItemList.fatchCartItems();
+      cartItemList.fetchCartItems();
     });
     super.initState();
   }
@@ -52,13 +55,12 @@ class _CartPageState extends State<CartPage> {
                             color: Constants.blue.withOpacity(0.4),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          height: 80,
+                          height: 90,
                           width: size.width,
                           margin: const EdgeInsets.only(bottom: 10, top: 10),
                           padding: const EdgeInsets.only(left: 10, top: 10),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Row(
                                 children: [
@@ -70,8 +72,7 @@ class _CartPageState extends State<CartPage> {
                                   ),
                                   Text(
                                     numberformat.format(int.parse(
-                                      value.itemsinCart![index]
-                                          .productRegularPrice
+                                      value.itemsinCart![index].productSalePrice
                                           .toString(),
                                     )),
                                     style: TextStyle(
@@ -79,6 +80,41 @@ class _CartPageState extends State<CartPage> {
                                       fontSize: 20,
                                       color: Constants.teal,
                                     ),
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        value.itemsinCart![index].productName
+                                            .toString(),
+                                        style: const TextStyle(
+                                          fontFamily: 'font1',
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  CustomMinMaxPrice(
+                                    numberMin: 0,
+                                    numberMax: 20,
+                                    iconSize: 15,
+                                    value: value.itemsinCart![index].quantity!
+                                        .toInt(),
+                                    onChanged: (minMaxPrice) {
+                                      debugPrint(value
+                                          .itemsinCart![index].quantity
+                                          .toString());
+                                      Provider.of<ShopProvider>(context,
+                                              listen: false)
+                                          .updateQty(
+                                        value.itemsinCart![index].productId!,
+                                        minMaxPrice,
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
@@ -102,35 +138,6 @@ class _CartPageState extends State<CartPage> {
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    right: 70,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              value.itemsinCart![index]
-                                                  .productName
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                fontFamily: 'font1',
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        CustomMinMaxPrice(
-                                          numberMin: 0,
-                                          numberMax: 20,
-                                          iconSize: 15,
-                                          value: 1,
-                                          onChanged: (value) {},
-                                        )
-                                      ],
                                     ),
                                   ),
                                 ],
@@ -177,11 +184,12 @@ class _CartPageState extends State<CartPage> {
                                       padding:
                                           const EdgeInsets.only(bottom: 10),
                                       child: SizedBox(
-                                          height: 15,
-                                          child: Icon(
-                                            Icons.shopping_basket_rounded,
-                                            color: Constants.teal,
-                                          )),
+                                        height: 15,
+                                        child: Icon(
+                                          Icons.shopping_basket_rounded,
+                                          color: Constants.teal,
+                                        ),
+                                      ),
                                     ),
                                     const SizedBox(
                                       height: 5,
@@ -189,7 +197,12 @@ class _CartPageState extends State<CartPage> {
                                     Padding(
                                       padding: const EdgeInsets.only(top: 5),
                                       child: Text(
-                                        "50000".farsiNumber,
+                                        numberformat
+                                            .format(Provider.of<ShopProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .totalAmount)
+                                            .farsiNumber,
                                         style: TextStyle(
                                           fontFamily: 'font2',
                                           color: Constants.black,
@@ -207,7 +220,19 @@ class _CartPageState extends State<CartPage> {
                         Row(
                           children: [
                             IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Provider.of<LodingProvider>(context,
+                                        listen: false)
+                                    .setloadingStatus(true);
+                                var cartProvider = Provider.of<ShopProvider>(
+                                    context,
+                                    listen: false);
+                                cartProvider.updateCart((val) {
+                                  Provider.of<LodingProvider>(context,
+                                          listen: false)
+                                      .setloadingStatus(false);
+                                });
+                              },
                               icon: const Icon(Icons.sync),
                             ),
                             InkResponse(
@@ -225,7 +250,16 @@ class _CartPageState extends State<CartPage> {
                                   ],
                                 ),
                                 child: InkResponse(
-                                  onTap: () {},
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) {
+                                          return const VerifyAddress();
+                                        },
+                                      ),
+                                    );
+                                  },
                                   child: Text(
                                     "مرحله بعد",
                                     style: TextStyle(
@@ -246,8 +280,12 @@ class _CartPageState extends State<CartPage> {
             ),
           );
         } else {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return Center(
+            child: Image.asset(
+              "assets/images/sabad.png",
+              height: 300,
+              width: 300,
+            ),
           );
         }
       },
